@@ -12,8 +12,12 @@ export default {
         "2xl": "1400px",
       },
     },
-    extend: {
-      colors: {
+      extend: {
+        fontFamily: {
+          sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          heading: ['Montserrat', 'Inter', 'sans-serif'],
+        },
+        colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -56,6 +60,20 @@ export default {
           "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
+        },
+        marketplace: {
+          cardinal: "hsl(var(--marketplace-cardinal))",
+          "cardinal-foreground": "hsl(var(--marketplace-cardinal-foreground))",
+          gold: "hsl(var(--marketplace-gold))",
+          "gold-foreground": "hsl(var(--marketplace-gold-foreground))",
+          "cardinal-light": "hsl(var(--marketplace-cardinal-light))",
+          "gold-light": "hsl(var(--marketplace-gold-light))",
+          orange: "hsl(var(--marketplace-orange))",
+          "orange-foreground": "hsl(var(--marketplace-orange-foreground))",
+          blue: "hsl(var(--marketplace-blue))",
+          "blue-foreground": "hsl(var(--marketplace-blue-foreground))",
+          gray: "hsl(var(--marketplace-gray))",
+          light: "hsl(var(--marketplace-light))",
         },
       },
       borderRadius: {
