@@ -22,7 +22,7 @@ const FurniturePage = () => {
         const { data, error } = await supabase
           .from('listings')
           .select('*')
-          .eq('category', 'furniture')
+          .in('category', ['furniture', 'essentials'])
           .eq('status', 'published')
           .order('created_at', { ascending: false});
         if (error) throw error;
