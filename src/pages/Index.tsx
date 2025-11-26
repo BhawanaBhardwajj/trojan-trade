@@ -1,103 +1,106 @@
-import { useState, useEffect } from 'react';
-import { MarketplaceHeader } from '@/components/MarketplaceHeader';
-import { ListingCard } from '@/components/ListingCard';
-import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
+import { MarketplaceHeader } from "@/components/MarketplaceHeader";
+import { HeroSection } from "@/components/HeroSection";
+import { CategoryGrid } from "@/components/CategoryGrid";
+import { FeaturedListings } from "@/components/FeaturedListings";
+import { Link } from "react-router-dom";
 
 const Index = () => {
-  const [listings, setListings] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchListings = async () => {
-      setLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('listings')
-          .select('*')
-          .eq('status', 'published')
-          .order('created_at', { ascending: false })
-          .limit(12);
-        
-        if (error) throw error;
-        setListings(data || []);
-      } catch (error) {
-        console.error('Error fetching listings:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchListings();
-  }, []);
-
-  const categories = [
-    { name: 'Game Day', path: '/category/game-day', icon: '🏈' },
-    { name: 'Merchandise', path: '/category/merchandise', icon: '🎽' },
-    { name: 'Rentals', path: '/category/rentals', icon: '🏠' },
-    { name: 'Furniture', path: '/category/furniture', icon: '🪑' },
-  ];
-
   return (
     <div className="min-h-screen bg-background">
       <MarketplaceHeader />
-      
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary/10 to-primary/5 py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-5xl font-bold text-primary mb-4">Trojan Trade</h1>
-          <p className="text-xl text-muted-foreground mb-8">USC's Premier Student Marketplace</p>
-          <div className="flex gap-4 justify-center">
-            <Button size="lg" onClick={() => navigate('/search')}>
-              Browse Listings
-            </Button>
-            <Button size="lg" variant="outline" onClick={() => navigate('/post-ad')}>
-              Post an Ad
-            </Button>
+      <HeroSection />
+      <CategoryGrid />
+      <FeaturedListings />
+
+      {/* Footer */}
+      <footer className="bg-[hsl(var(--usc-cardinal))] text-white border-t-4 border-[hsl(var(--usc-gold))] mt-16">
+        <div className="container mx-auto px-4 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <h3 className="font-heading font-semibold text-lg mb-4 text-[hsl(var(--usc-gold))]">Trojan Trade</h3>
+              <p className="text-white/90 text-sm leading-relaxed">
+                USC students' trusted platform for buying and selling tailgate tickets/passes, USC Merch or dorm
+                essentials.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-heading font-medium mb-3 text-[hsl(var(--usc-gold))]">Categories</h4>
+              <ul className="space-y-2 text-sm text-white/90">
+                <li>
+                  <Link to="/category/game-day" className="hover:text-[hsl(var(--usc-gold))] transition-colors">
+                    Game Day Exchange
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/category/merchandise" className="hover:text-[hsl(var(--usc-gold))] transition-colors">
+                    USC Merchandise
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/category/furniture" className="hover:text-[hsl(var(--usc-gold))] transition-colors">
+                    Furniture & Essentials
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/category/rentals" className="hover:text-[hsl(var(--usc-gold))] transition-colors">
+                    Rentals
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-heading font-medium mb-3 text-[hsl(var(--usc-gold))]">For Students</h4>
+              <ul className="space-y-2 text-sm text-white/90">
+                <li>
+                  <Link to="/safety" className="hover:text-[hsl(var(--usc-gold))] transition-colors">
+                    Safety Tips
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/guidelines" className="hover:text-[hsl(var(--usc-gold))] transition-colors">
+                    USC Guidelines
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/how-it-works" className="hover:text-[hsl(var(--usc-gold))] transition-colors">
+                    How It Works
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-heading font-medium mb-3 text-[hsl(var(--usc-gold))]">Company</h4>
+              <ul className="space-y-2 text-sm text-white/90">
+                <li>
+                  <Link to="/about" className="hover:text-[hsl(var(--usc-gold))] transition-colors">
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/terms" className="hover:text-[hsl(var(--usc-gold))] transition-colors">
+                    Terms
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/privacy" className="hover:text-[hsl(var(--usc-gold))] transition-colors">
+                    Privacy
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Gold divider line */}
+          <div className="w-full h-0.5 bg-[hsl(var(--usc-gold))] mb-6"></div>
+
+          <div className="flex flex-col md:flex-row items-center justify-between">
+            <p className="text-sm text-white/90 mb-4 md:mb-0">
+              &copy; 2025 Trojan Trade. Built by Trojans, for Trojans.
+            </p>
+            <div className="text-[hsl(var(--usc-gold))] text-xl font-heading font-bold">Fight On! ✌️</div>
           </div>
         </div>
-      </section>
-
-      {/* Categories */}
-      <section className="container mx-auto px-4 py-12">
-        <h2 className="text-3xl font-bold text-primary mb-6">Browse Categories</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {categories.map((category) => (
-            <Button
-              key={category.path}
-              variant="outline"
-              className="h-24 text-lg"
-              onClick={() => navigate(category.path)}
-            >
-              <span className="mr-2 text-2xl">{category.icon}</span>
-              {category.name}
-            </Button>
-          ))}
-        </div>
-      </section>
-
-      {/* Recent Listings */}
-      <section className="container mx-auto px-4 py-12">
-        <h2 className="text-3xl font-bold text-primary mb-6">Recent Listings</h2>
-        {loading ? (
-          <div className="flex justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        ) : listings.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No listings yet. Be the first to post!</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {listings.map((listing) => (
-              <ListingCard key={listing.id} listing={listing} />
-            ))}
-          </div>
-        )}
-      </section>
+      </footer>
     </div>
   );
 };
