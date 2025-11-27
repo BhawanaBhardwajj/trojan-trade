@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, MessageCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { ReviewDialog } from '@/components/ReviewDialog';
 import { ReviewsList } from '@/components/ReviewsList';
+import { ReviewsGivenList } from '@/components/ReviewsGivenList';
 import { Separator } from '@/components/ui/separator';
 import { MessageDialog } from '@/components/MessageDialog';
 
@@ -180,8 +182,36 @@ const SellerProfilePage = () => {
         {user?.id !== sellerId && (
           <Card className="mb-8">
             <CardContent className="p-6">
-              <h2 className="text-2xl font-bold mb-6">Reviews</h2>
-              <ReviewsList sellerId={sellerId || ''} refreshTrigger={reviewsRefresh} />
+              <Tabs defaultValue="received" className="space-y-6">
+                <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent">
+                  <TabsTrigger 
+                    value="received" 
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-[hsl(var(--usc-cardinal))] data-[state=active]:bg-transparent"
+                  >
+                    Reviews Received
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="given"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-[hsl(var(--usc-cardinal))] data-[state=active]:bg-transparent"
+                  >
+                    Reviews Given
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="received">
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-bold">Reviews About {seller.full_name.split(' ')[0]}</h3>
+                    <ReviewsList sellerId={sellerId || ''} refreshTrigger={reviewsRefresh} />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="given">
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-bold">Reviews Written by {seller.full_name.split(' ')[0]}</h3>
+                    <ReviewsGivenList reviewerId={sellerId || ''} />
+                  </div>
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
         )}
