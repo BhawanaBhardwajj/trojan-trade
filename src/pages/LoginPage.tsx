@@ -6,6 +6,15 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -15,6 +24,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showNoAccountDialog, setShowNoAccountDialog] = useState(false);
 
   const returnUrl = (location.state as any)?.from || "/";
 
@@ -38,7 +48,7 @@ export default function LoginPage() {
 
       if (error) {
         if (error.message.includes("not found") || error.message.includes("No account")) {
-          toast.error("No account found. Please sign up.");
+          setShowNoAccountDialog(true);
         } else if (error.message.includes("verify your email") || error.message.includes("not verified")) {
           toast.error("Please verify your email. Check your inbox for the verification code.");
         } else if (error.message.includes("Invalid") || error.message.includes("incorrect")) {
@@ -122,6 +132,30 @@ export default function LoginPage() {
           </p>
         </form>
       </Card>
+
+      <AlertDialog open={showNoAccountDialog} onOpenChange={setShowNoAccountDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Account Not Found</AlertDialogTitle>
+            <AlertDialogDescription>
+              No account exists with this email address. Please sign up first to create an account.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction asChild>
+              <Button 
+                onClick={() => {
+                  setShowNoAccountDialog(false);
+                  navigate("/signup");
+                }}
+                className="bg-[hsl(var(--usc-cardinal))] hover:bg-[hsl(var(--usc-cardinal))]/90"
+              >
+                Go to Sign Up
+              </Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
