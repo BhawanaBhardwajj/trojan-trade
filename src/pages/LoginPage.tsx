@@ -47,7 +47,7 @@ export default function LoginPage() {
       const { error } = await loginWithPassword(email, password);
 
       if (error) {
-        if (error.message.includes("not found") || error.message.includes("No account")) {
+        if (error.message.includes("not found") || error.message.includes("No account") || error.message.includes("Invalid login credentials") || error.message.includes("invalid credentials")) {
           setShowNoAccountDialog(true);
         } else if (error.message.includes("verify your email") || error.message.includes("not verified")) {
           toast.error("Please verify your email. Check your inbox for the verification code.");
