@@ -33,7 +33,7 @@ export default function ProfileSetupPage() {
         .maybeSingle();
 
       if (!error && data) {
-        if (data.full_name && data.role) {
+        if (data.full_name) {
           navigate("/profile");
           return;
         }
@@ -50,19 +50,23 @@ export default function ProfileSetupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.full_name.trim() || !formData.role) {
-      toast({ title: "Missing information", description: "Please complete all fields", variant: "destructive" });
+    if (!formData.full_name.trim()) {
+      toast({ title: "Missing information", description: "Please enter your full name", variant: "destructive" });
       return;
     }
     setLoading(true);
     try {
+      const updateData: any = {
+        full_name: formData.full_name.trim(),
+        updated_at: new Date().toISOString(),
+      };
+      if (formData.role) {
+        updateData.role = formData.role;
+      }
+      
       const { error } = await supabase
         .from("users")
-        .update({
-          full_name: formData.full_name.trim(),
-          role: formData.role,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq("id", user?.id);
       if (error) throw error;
       toast({ title: "Profile created", description: "Welcome to USC Marketplace!" });
@@ -100,7 +104,7 @@ export default function ProfileSetupPage() {
             />
           </div>
           <div className="space-y-3">
-            <Label>Role <span className="text-destructive">*</span></Label>
+            <Label>Role (Optional)</Label>
             <RadioGroup
               value={formData.role}
               onValueChange={(value) => setFormData({ ...formData, role: value as "Student" | "Alumni" | "Staff" })}

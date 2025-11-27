@@ -47,7 +47,7 @@ const ProfilePage = () => {
           return;
         }
         
-        if (!data.full_name || !data.role) {
+        if (!data.full_name) {
           navigate('/profile-setup');
           return;
         }
