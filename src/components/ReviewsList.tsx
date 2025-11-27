@@ -4,12 +4,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Star } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 interface Review {
   id: string;
   rating: number;
   comment: string | null;
   created_at: string;
+  reviewer_id: string;
   reviewer: {
     full_name: string;
     avatar_url: string | null;
@@ -25,6 +27,7 @@ interface ReviewsListProps {
 export const ReviewsList = ({ sellerId, refreshTrigger }: ReviewsListProps) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -37,6 +40,7 @@ export const ReviewsList = ({ sellerId, refreshTrigger }: ReviewsListProps) => {
             rating,
             comment,
             created_at,
+            reviewer_id,
             reviewer:reviewer_id (
               full_name,
               avatar_url,
@@ -54,6 +58,7 @@ export const ReviewsList = ({ sellerId, refreshTrigger }: ReviewsListProps) => {
           rating: review.rating,
           comment: review.comment,
           created_at: review.created_at,
+          reviewer_id: review.reviewer_id,
           reviewer: Array.isArray(review.reviewer) ? review.reviewer[0] : review.reviewer,
         })) || [];
 
@@ -103,7 +108,10 @@ export const ReviewsList = ({ sellerId, refreshTrigger }: ReviewsListProps) => {
           <Card key={review.id}>
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
-                <Avatar className="w-10 h-10">
+                <Avatar 
+                  className="w-10 h-10 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+                  onClick={() => navigate(`/u/${review.reviewer_id}`)}
+                >
                   <AvatarImage src={review.reviewer.avatar_url || ''} />
                   <AvatarFallback className="bg-primary/10 text-primary">
                     {review.reviewer.full_name[0]}
@@ -112,7 +120,12 @@ export const ReviewsList = ({ sellerId, refreshTrigger }: ReviewsListProps) => {
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
                     <div>
-                      <span className="font-semibold">{review.reviewer.full_name}</span>
+                      <button
+                        onClick={() => navigate(`/u/${review.reviewer_id}`)}
+                        className="font-semibold hover:text-primary transition-colors"
+                      >
+                        {review.reviewer.full_name}
+                      </button>
                       {review.reviewer.usc_verified && (
                         <span className="text-xs text-primary ml-2">✓ Verified</span>
                       )}
