@@ -176,7 +176,7 @@ const GameDayPage = () => {
                   sellerId={listing.user_id}
                   category={listing.category}
                   subcategory={listing.subcategory}
-                  gameDate={listing.game_date}
+                  createdAt={listing.created_at}
                 />
               </div>
             ))}

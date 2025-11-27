@@ -323,6 +323,7 @@ const ProductPage = () => {
                   subcategory={similar.subcategory}
                   listingId={similar.id}
                   sellerId={similar.user_id}
+                  createdAt={similar.created_at}
                 />
               ))}
             </div>

@@ -258,6 +258,7 @@ const SellerProfilePage = () => {
                   gameDate={listing.game_date}
                   listingId={listing.id}
                   sellerId={seller.id}
+                  createdAt={listing.created_at}
                 />
               ))}
             </div>
