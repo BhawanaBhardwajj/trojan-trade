@@ -116,6 +116,7 @@ const SearchPage = () => {
                   gameDate={listing.game_date}
                   listingId={listing.id}
                   sellerId={listing.user_id}
+                  createdAt={listing.created_at}
                 />
               </div>
             ))}

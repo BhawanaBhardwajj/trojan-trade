@@ -142,6 +142,7 @@ const RentalsPage = () => {
                   subcategory={listing.subcategory}
                   listingId={listing.id}
                   sellerId={listing.user_id}
+                  createdAt={listing.created_at}
                 />
               </div>
             ))}
