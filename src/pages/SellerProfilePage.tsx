@@ -10,6 +10,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ListingCard } from '@/components/ListingCard';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { ReviewDialog } from '@/components/ReviewDialog';
+import { ReviewsList } from '@/components/ReviewsList';
+import { Separator } from '@/components/ui/separator';
 
 interface SellerData {
   id: string;
@@ -26,6 +29,7 @@ const SellerProfilePage = () => {
   const [seller, setSeller] = useState<SellerData | null>(null);
   const [listings, setListings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [reviewsRefresh, setReviewsRefresh] = useState(0);
 
   useEffect(() => {
     const fetchSellerData = async () => {
@@ -134,11 +138,18 @@ const SellerProfilePage = () => {
                 </p>
                 {seller.bio && <p className="text-foreground mb-4 whitespace-pre-wrap">{seller.bio}</p>}
                 <div className="flex gap-3">
-                  {user?.id !== sellerId && (
-                    <Button>
-                      <MessageCircle className="h-4 w-4 mr-2" />
-                      Contact Seller
-                    </Button>
+                  {user?.id !== sellerId && user && (
+                    <>
+                      <Button>
+                        <MessageCircle className="h-4 w-4 mr-2" />
+                        Contact Seller
+                      </Button>
+                      <ReviewDialog 
+                        listingId="" 
+                        sellerId={sellerId || ''} 
+                        onReviewSubmitted={() => setReviewsRefresh(prev => prev + 1)}
+                      />
+                    </>
                   )}
                   {user?.id === sellerId && (
                     <Link to="/profile/edit">
@@ -150,6 +161,15 @@ const SellerProfilePage = () => {
             </div>
           </CardContent>
         </Card>
+
+        {user?.id !== sellerId && (
+          <Card className="mb-8">
+            <CardContent className="p-6">
+              <h2 className="text-2xl font-bold mb-6">Reviews</h2>
+              <ReviewsList sellerId={sellerId || ''} refreshTrigger={reviewsRefresh} />
+            </CardContent>
+          </Card>
+        )}
 
         <div>
           <h2 className="text-2xl font-bold mb-6">
