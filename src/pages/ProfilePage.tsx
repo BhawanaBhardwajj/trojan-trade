@@ -28,8 +28,25 @@ const ProfilePage = () => {
           .from('users')
           .select('*')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
+        
         if (error) throw error;
+        
+        // If no profile exists, create one
+        if (!data) {
+          const { error: insertError } = await supabase
+            .from('users')
+            .insert({
+              id: user.id,
+              email: user.email!,
+              full_name: user.user_metadata?.full_name || null,
+            });
+          
+          if (insertError) throw insertError;
+          navigate('/profile-setup');
+          return;
+        }
+        
         if (!data.full_name || !data.role) {
           navigate('/profile-setup');
           return;
