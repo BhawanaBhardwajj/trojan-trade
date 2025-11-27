@@ -10,6 +10,7 @@ import { Edit, Loader2, MapPin } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { ReviewsList } from '@/components/ReviewsList';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -249,8 +250,11 @@ const ProfilePage = () => {
           {/* My Reviews Tab */}
           <TabsContent value="reviews">
             <Card>
-              <CardContent className="p-6 text-center py-12">
-                <p className="text-muted-foreground">No reviews yet.</p>
+              <CardContent className="p-6">
+                <h2 className="text-2xl font-bold mb-6">Reviews About Me</h2>
+                {user && (
+                  <ReviewsList sellerId={user.id} />
+                )}
               </CardContent>
             </Card>
           </TabsContent>
