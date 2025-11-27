@@ -45,9 +45,11 @@ export const ListingCard = ({
   const isOwner = sellerId && user?.id === sellerId;
 
   return (
-    <Link to={`/listing/${id}`}>
-      <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-        <img src={image} alt={title} className="w-full h-48 object-cover" />
+    <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+      <Link to={`/listing/${id}`}>
+        <div className="w-full h-48 bg-muted flex items-center justify-center">
+          <img src={image} alt={title} className="w-full h-full object-contain p-2" />
+        </div>
         <div className="p-4">
           <h3 className="font-semibold mb-2 line-clamp-2">{title}</h3>
           <p className="text-xl font-bold text-[hsl(var(--usc-cardinal))] mb-2">{price}</p>
@@ -59,52 +61,58 @@ export const ListingCard = ({
           {location && (
             <p className="text-sm text-muted-foreground mb-2">{location}</p>
           )}
-          {seller && (
-            <div className="flex items-center gap-2 mt-2">
-              <div className="text-sm text-muted-foreground flex items-center gap-1">
-                {seller.name}
-                {seller.verified && (
-                  <ShieldCheck className="h-4 w-4 text-[hsl(var(--usc-gold))]" />
-                )}
-              </div>
-            </div>
-          )}
-          {listingId && sellerId && (
-            <div className="mt-3">
-              {isOwner ? (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    navigate(`/post-ad?edit=${listingId}`);
-                  }}
-                >
-                  Edit Listing
-                </Button>
-              ) : (
-                <Button
-                  size="sm"
-                  className="w-full"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (!isAuthenticated) {
-                      navigate("/login");
-                    } else {
-                      navigate("/messages", { state: { sellerId, listingId } });
-                    }
-                  }}
-                >
-                  Message Seller
-                </Button>
+        </div>
+      </Link>
+      {seller && (
+        <div className="px-4 pb-3">
+          <Link 
+            to={`/u/${seller.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="group"
+          >
+            <div className="flex items-center gap-1 text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+              {seller.name}
+              {seller.verified && (
+                <ShieldCheck className="h-4 w-4 text-[hsl(var(--usc-gold))]" />
               )}
             </div>
+          </Link>
+        </div>
+      )}
+      {listingId && sellerId && (
+        <div className="px-4 pb-4">
+          {isOwner ? (
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                navigate(`/post-ad?edit=${listingId}`);
+              }}
+            >
+              Edit Listing
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              className="w-full"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!isAuthenticated) {
+                  navigate("/login");
+                } else {
+                  navigate("/messages", { state: { sellerId, listingId } });
+                }
+              }}
+            >
+              Message Seller
+            </Button>
           )}
         </div>
-      </Card>
-    </Link>
+      )}
+    </Card>
   );
 };
