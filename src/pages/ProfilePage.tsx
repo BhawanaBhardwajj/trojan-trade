@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { ReviewsList } from '@/components/ReviewsList';
+import { ReviewsGivenList } from '@/components/ReviewsGivenList';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -251,10 +252,36 @@ const ProfilePage = () => {
           <TabsContent value="reviews">
             <Card>
               <CardContent className="p-6">
-                <h2 className="text-2xl font-bold mb-6">Reviews About Me</h2>
-                {user && (
-                  <ReviewsList sellerId={user.id} />
-                )}
+                <Tabs defaultValue="received" className="space-y-6">
+                  <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent">
+                    <TabsTrigger 
+                      value="received" 
+                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-[hsl(var(--usc-cardinal))] data-[state=active]:bg-transparent"
+                    >
+                      Reviews Received
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="given"
+                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-[hsl(var(--usc-cardinal))] data-[state=active]:bg-transparent"
+                    >
+                      Reviews Given
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="received">
+                    <div className="space-y-4">
+                      <h3 className="text-xl font-bold">Reviews About Me</h3>
+                      {user && <ReviewsList sellerId={user.id} />}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="given">
+                    <div className="space-y-4">
+                      <h3 className="text-xl font-bold">Reviews I've Written</h3>
+                      {user && <ReviewsGivenList reviewerId={user.id} />}
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
           </TabsContent>
