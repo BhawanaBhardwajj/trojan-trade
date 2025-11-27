@@ -127,7 +127,7 @@ const ProfilePage = () => {
                     <div className="flex items-center gap-3 mb-2 flex-wrap">
                       <h1 className="text-3xl font-bold">{profile?.full_name || 'Anonymous User'}</h1>
                       {!isProfileComplete && (
-                        <Badge className="bg-[hsl(var(--usc-cardinal))] text-white hover:bg-[hsl(var(--usc-cardinal))]/90">
+                        <Badge className="bg-gradient-to-r from-[hsl(var(--usc-cardinal))] to-red-700 text-white hover:from-[hsl(var(--usc-cardinal))]/90 hover:to-red-700/90">
                           Complete Profile
                         </Badge>
                       )}
