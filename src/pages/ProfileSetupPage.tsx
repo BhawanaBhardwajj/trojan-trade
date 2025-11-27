@@ -13,7 +13,7 @@ import { Loader2 } from "lucide-react";
 export default function ProfileSetupPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     full_name: "",
     role: "" as "Student" | "Alumni" | "Staff" | "",
@@ -25,19 +25,27 @@ export default function ProfileSetupPage() {
       return;
     }
 
-    const checkProfile = async () => {
+    const loadProfile = async () => {
       const { data, error } = await supabase
         .from("users")
         .select("full_name, role")
         .eq("id", user.id)
         .maybeSingle();
 
-      if (!error && data && data.full_name && data.role) {
-        navigate("/profile");
+      if (!error && data) {
+        if (data.full_name && data.role) {
+          navigate("/profile");
+          return;
+        }
+        setFormData({
+          full_name: data.full_name || "",
+          role: (data.role || "") as "Student" | "Alumni" | "Staff" | "",
+        });
       }
+      setLoading(false);
     };
 
-    checkProfile();
+    loadProfile();
   }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,7 +75,11 @@ export default function ProfileSetupPage() {
     }
   };
 
-  if (!user) return null;
+  if (!user || loading) return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
