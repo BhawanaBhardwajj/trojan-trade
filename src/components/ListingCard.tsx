@@ -1,8 +1,9 @@
 import { Card } from "./ui/card";
-import { Link } from "react-router-dom";
+import { Button } from "./ui/button";
+import { Link, useNavigate } from "react-router-dom";
 import { Badge } from "./ui/badge";
 import { ShieldCheck } from "lucide-react";
-
+import { useAuth } from "@/contexts/AuthContext";
 interface ListingCardProps {
   id: string;
   title: string;
@@ -32,7 +33,17 @@ export const ListingCard = ({
   seller,
   condition,
   location,
+  category,
+  subcategory,
+  gameDate,
+  listingId,
+  sellerId,
 }: ListingCardProps) => {
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  const isOwner = sellerId && user?.id === sellerId;
+
   return (
     <Link to={`/listing/${id}`}>
       <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
@@ -56,6 +67,40 @@ export const ListingCard = ({
                   <ShieldCheck className="h-4 w-4 text-[hsl(var(--usc-gold))]" />
                 )}
               </div>
+            </div>
+          )}
+          {listingId && sellerId && (
+            <div className="mt-3">
+              {isOwner ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    navigate(`/post-ad?edit=${listingId}`);
+                  }}
+                >
+                  Edit Listing
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  className="w-full"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (!isAuthenticated) {
+                      navigate("/login");
+                    } else {
+                      navigate("/messages", { state: { sellerId, listingId } });
+                    }
+                  }}
+                >
+                  Message Seller
+                </Button>
+              )}
             </div>
           )}
         </div>
