@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { ReviewDialog } from '@/components/ReviewDialog';
 import { ReviewsList } from '@/components/ReviewsList';
 import { Separator } from '@/components/ui/separator';
+import { MessageDialog } from '@/components/MessageDialog';
 
 interface SellerData {
   id: string;
@@ -140,10 +141,18 @@ const SellerProfilePage = () => {
                 <div className="flex gap-3">
                   {user?.id !== sellerId && user && (
                     <>
-                      <Button>
-                        <MessageCircle className="h-4 w-4 mr-2" />
-                        Contact Seller
-                      </Button>
+                      <MessageDialog
+                        sellerId={sellerId || ''}
+                        sellerName={seller.full_name}
+                        listingId=""
+                        listingTitle={`Conversation with ${seller.full_name}`}
+                        triggerButton={
+                          <Button>
+                            <MessageCircle className="h-4 w-4 mr-2" />
+                            Contact Seller
+                          </Button>
+                        }
+                      />
                       <ReviewDialog 
                         listingId="" 
                         sellerId={sellerId || ''} 
