@@ -20,7 +20,24 @@ export default function ProfileSetupPage() {
   });
 
   useEffect(() => {
-    if (!user) navigate("/login");
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    const checkProfile = async () => {
+      const { data, error } = await supabase
+        .from("users")
+        .select("full_name, role")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (!error && data && data.full_name && data.role) {
+        navigate("/profile");
+      }
+    };
+
+    checkProfile();
   }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
