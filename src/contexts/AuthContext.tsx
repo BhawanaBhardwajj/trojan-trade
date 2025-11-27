@@ -9,7 +9,7 @@ interface AuthContextType {
   loading: boolean;
   lastOTP: string | null;
   signupWithPassword: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
-  verifySignupOTP: (email: string, code: string) => Promise<{ error: Error | null }>;
+  verifySignupOTP: (email: string, code: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
   sendOTP: (email: string, isSignup?: boolean) => Promise<{ error: Error | null }>;
   verifyOTP: (email: string, code: string, fullName?: string) => Promise<{ error: Error | null }>;
   loginWithPassword: (email: string, password: string) => Promise<{ error: Error | null }>;
@@ -49,18 +49,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signupWithPassword = async (email: string, password: string, fullName: string) => {
     try {
       const normalizedEmail = email.trim().toLowerCase();
-      const { error } = await supabase.auth.signUp({
-        email: normalizedEmail,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/`,
-          data: {
-            full_name: fullName,
-          }
-        }
+      
+      // Generate 6-digit OTP code
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      
+      // Store verification code in database
+      const expiresAt = new Date();
+      expiresAt.setMinutes(expiresAt.getMinutes() + 10); // 10 minute expiry
+      
+      const { error: codeError } = await supabase
+        .from('verification_codes')
+        .insert({
+          email: normalizedEmail,
+          code: code,
+          type: 'signup',
+          expires_at: expiresAt.toISOString(),
+        });
+
+      if (codeError) throw codeError;
+
+      // Send OTP email via edge function
+      const { error: emailError } = await supabase.functions.invoke('send-otp-email', {
+        body: {
+          email: normalizedEmail,
+          code: code,
+          type: 'signup',
+        },
       });
 
-      if (error) throw error;
+      if (emailError) throw emailError;
+
+      // Store email and password temporarily for later signup
+      setLastOTP(code);
+      
       return { error: null };
     } catch (error: any) {
       console.error('Signup error:', error);
@@ -68,16 +89,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const verifySignupOTP = async (email: string, code: string) => {
+  const verifySignupOTP = async (email: string, code: string, password: string, fullName: string) => {
     try {
       const normalizedEmail = email.trim().toLowerCase();
-      const { error } = await supabase.auth.verifyOtp({
+      
+      // Verify the OTP code from database
+      const { data: verificationData, error: verifyError } = await supabase
+        .from('verification_codes')
+        .select('*')
+        .eq('email', normalizedEmail)
+        .eq('code', code)
+        .eq('type', 'signup')
+        .eq('used', false)
+        .gt('expires_at', new Date().toISOString())
+        .single();
+
+      if (verifyError || !verificationData) {
+        throw new Error('Invalid or expired verification code');
+      }
+
+      // Mark code as used
+      await supabase
+        .from('verification_codes')
+        .update({ used: true })
+        .eq('id', verificationData.id);
+
+      // Now create the actual user account
+      const { error: signupError } = await supabase.auth.signUp({
         email: normalizedEmail,
-        token: code,
-        type: 'email'
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+          }
+        }
       });
 
-      if (error) throw error;
+      if (signupError) throw signupError;
+
       return { error: null };
     } catch (error: any) {
       console.error('Verify OTP error:', error);
