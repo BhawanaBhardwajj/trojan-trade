@@ -35,7 +35,7 @@ const EditProfilePage = () => {
           .from('users')
           .select('full_name, role, bio, avatar_url')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
         if (error) throw error;
         if (data) {
           setFormData({
@@ -55,6 +55,87 @@ const EditProfilePage = () => {
     };
     loadProfile();
   }, [user]);
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      // Delete old avatar if exists
+      if (formData.avatar_url) {
+        const oldPath = formData.avatar_url.split('/').pop();
+        if (oldPath) {
+          await supabase.storage
+            .from('avatars')
+            .remove([`${user?.id}/${oldPath}`]);
+        }
+      }
+
+      // Upload new avatar
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `${user?.id}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      setFormData({ ...formData, avatar_url: publicUrl });
+      setAvatarPreview(publicUrl);
+      toast.success('Photo uploaded successfully');
+    } catch (error: any) {
+      console.error('Error uploading avatar:', error);
+      toast.error('Failed to upload photo');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    if (!formData.avatar_url) return;
+    
+    setUploading(true);
+    try {
+      const oldPath = formData.avatar_url.split('/').pop();
+      if (oldPath) {
+        await supabase.storage
+          .from('avatars')
+          .remove([`${user?.id}/${oldPath}`]);
+      }
+      setFormData({ ...formData, avatar_url: '' });
+      setAvatarPreview(null);
+      toast.success('Photo removed');
+    } catch (error: any) {
+      console.error('Error removing avatar:', error);
+      toast.error('Failed to remove photo');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,6 +202,46 @@ const EditProfilePage = () => {
                       {formData.full_name?.[0]?.toUpperCase() || <User className="h-12 w-12" />}
                     </AvatarFallback>
                   </Avatar>
+                  <div className="flex flex-col gap-2">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarChange}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleAvatarClick}
+                      disabled={uploading}
+                    >
+                      {uploading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Uploading...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="h-4 w-4 mr-2" />
+                          Upload Photo
+                        </>
+                      )}
+                    </Button>
+                    {formData.avatar_url && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleRemoveAvatar}
+                        disabled={uploading}
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        Remove
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="space-y-2">
