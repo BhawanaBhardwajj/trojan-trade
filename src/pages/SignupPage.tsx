@@ -119,7 +119,7 @@ export default function SignupPage() {
 
     setLoading(true);
     try {
-      const { error } = await verifySignupOTP(email, code);
+      const { error } = await verifySignupOTP(email, code, password, fullName);
 
       if (error) {
         if (error.message.includes("expired") || error.message.includes("Invalid")) {
