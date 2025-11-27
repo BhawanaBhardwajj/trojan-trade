@@ -248,7 +248,19 @@ const ProductPage = () => {
                 </>
               ) : (
                 <>
-                  <Button size="lg" className="w-full">Message Seller</Button>
+                  <Button 
+                    size="lg" 
+                    className="w-full"
+                    onClick={() => {
+                      if (!isAuthenticated) {
+                        navigate('/login');
+                      } else {
+                        navigate('/messages', { state: { sellerId: dbListing?.user_id, listingId: dbListing?.id } });
+                      }
+                    }}
+                  >
+                    Message Seller
+                  </Button>
                   <Button variant="outline" size="lg" className="w-full">Report Listing</Button>
                 </>
               )}
