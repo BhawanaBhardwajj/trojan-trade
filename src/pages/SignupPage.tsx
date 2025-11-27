@@ -98,9 +98,8 @@ export default function SignupPage() {
         return;
       }
 
+      toast.success("Account created! Please check your email to verify your account.");
       setStep("verify");
-      setResendCooldown(30);
-      toast.success("Verification code sent to your email!");
     } catch (error: any) {
       toast.error("Service unavailable, please retry shortly.");
     } finally {
@@ -279,57 +278,76 @@ export default function SignupPage() {
             </p>
           </form>
         ) : (
-          <form onSubmit={handleVerifyOTP} className="space-y-6">
+          <div className="space-y-6 text-center">
             <div className="space-y-4">
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground mb-4">
-                  We sent a code to
+              <div className="w-16 h-16 bg-[hsl(var(--usc-cardinal))]/10 rounded-full flex items-center justify-center mx-auto">
+                <svg
+                  className="w-8 h-8 text-[hsl(var(--usc-cardinal))]"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  />
+                </svg>
+              </div>
+
+              <div>
+                <h2 className="text-xl font-semibold text-[hsl(var(--usc-cardinal))] mb-2">
+                  Check Your Email
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  We've sent a verification email to
                   <br />
-                  <span className="font-medium">{email}</span>
+                  <span className="font-medium text-foreground">{email}</span>
                 </p>
               </div>
 
-              <OTPInput value={otp} onChange={setOtp} />
+              <div className="bg-[hsl(var(--usc-gold))]/10 p-4 rounded-lg border border-[hsl(var(--usc-gold))]/20 text-left">
+                <p className="text-sm text-muted-foreground mb-2">
+                  <strong className="text-foreground">Next steps:</strong>
+                </p>
+                <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
+                  <li>Open the email we sent you</li>
+                  <li>Click the verification link</li>
+                  <li>You'll be redirected back to log in</li>
+                </ol>
+              </div>
 
-              <div className="text-center text-sm text-muted-foreground">Code expires in 10 minutes</div>
+              <p className="text-xs text-muted-foreground">
+                Didn't receive the email? Check your spam folder or{" "}
+                <button
+                  onClick={async () => {
+                    setLoading(true);
+                    const { error } = await signupWithPassword(email, password, fullName);
+                    setLoading(false);
+                    if (error) {
+                      toast.error("Failed to resend email");
+                    } else {
+                      toast.success("Verification email resent!");
+                    }
+                  }}
+                  className="text-[hsl(var(--usc-cardinal))] hover:underline font-medium"
+                  disabled={loading}
+                >
+                  resend it
+                </button>
+              </p>
             </div>
 
             <Button
-              type="submit"
-              className="w-full bg-[hsl(var(--usc-cardinal))] hover:bg-[hsl(var(--usc-cardinal))]/90"
-              disabled={loading || otp.join("").length !== 6}
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/login")}
+              className="w-full"
             >
-              {loading ? "Verifying..." : "Verify and Create Account"}
+              Go to Login
             </Button>
-
-            <div className="flex flex-col gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleResendOTP}
-                disabled={loading || resendCooldown > 0}
-                className="w-full"
-              >
-                {resendCooldown > 0 ? `Resend code (${resendCooldown}s)` : "Resend code"}
-              </Button>
-
-              <p className="text-xs text-muted-foreground text-center">
-                Didn't get the code? Check your Junk or Other folder. You can request a new code.
-              </p>
-
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => {
-                  setStep("form");
-                  setOtp(Array(6).fill(""));
-                }}
-                className="w-full"
-              >
-                Back to Sign Up
-              </Button>
-            </div>
-          </form>
+          </div>
         )}
       </Card>
     </div>
