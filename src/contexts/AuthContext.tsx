@@ -125,7 +125,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       });
 
-      if (signupError) throw signupError;
+      if (signupError) {
+        // If user already exists, try to sign them in instead
+        if (signupError.message?.includes('already') || signupError.status === 422) {
+          const { error: loginError } = await supabase.auth.signInWithPassword({
+            email: normalizedEmail,
+            password,
+          });
+          if (loginError) throw new Error('Account exists but password is incorrect. Please login instead.');
+        } else {
+          throw signupError;
+        }
+      }
 
       return { error: null };
     } catch (error: any) {
