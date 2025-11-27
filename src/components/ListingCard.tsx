@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Badge } from "./ui/badge";
 import { ShieldCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { MessageDialog } from "./MessageDialog";
 interface ListingCardProps {
   id: string;
   title: string;
@@ -80,7 +81,7 @@ export const ListingCard = ({
         </div>
       )}
       {listingId && sellerId && (
-        <div className="px-4 pb-4">
+        <div className="px-4 pb-4" onClick={(e) => e.preventDefault()}>
           {isOwner ? (
             <Button
               variant="outline"
@@ -94,6 +95,13 @@ export const ListingCard = ({
             >
               Edit Listing
             </Button>
+          ) : isAuthenticated ? (
+            <MessageDialog
+              sellerId={sellerId}
+              sellerName={seller?.name || 'Seller'}
+              listingId={listingId}
+              listingTitle={title}
+            />
           ) : (
             <Button
               size="sm"
@@ -101,11 +109,7 @@ export const ListingCard = ({
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                if (!isAuthenticated) {
-                  navigate("/login");
-                } else {
-                  navigate("/messages", { state: { sellerId, listingId } });
-                }
+                navigate("/login");
               }}
             >
               Message Seller

@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ListingCard } from '@/components/ListingCard';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
+import { MessageDialog } from '@/components/MessageDialog';
 
 interface DatabaseListing {
   id: string;
@@ -248,19 +249,27 @@ const ProductPage = () => {
                 </>
               ) : (
                 <>
-                  <Button 
-                    size="lg" 
-                    className="w-full"
-                    onClick={() => {
-                      if (!isAuthenticated) {
-                        navigate('/login');
-                      } else {
-                        navigate('/messages', { state: { sellerId: dbListing?.user_id, listingId: dbListing?.id } });
+                  {isAuthenticated ? (
+                    <MessageDialog
+                      sellerId={dbListing?.user_id || ''}
+                      sellerName={listing.seller.name}
+                      listingId={dbListing?.id || ''}
+                      listingTitle={listing.title}
+                      triggerButton={
+                        <Button size="lg" className="w-full">
+                          Message Seller
+                        </Button>
                       }
-                    }}
-                  >
-                    Message Seller
-                  </Button>
+                    />
+                  ) : (
+                    <Button 
+                      size="lg" 
+                      className="w-full"
+                      onClick={() => navigate('/login')}
+                    >
+                      Message Seller
+                    </Button>
+                  )}
                   <Button variant="outline" size="lg" className="w-full">Report Listing</Button>
                 </>
               )}
