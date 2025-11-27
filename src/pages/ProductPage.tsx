@@ -10,8 +10,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ListingCard } from '@/components/ListingCard';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
-import { ReviewDialog } from '@/components/ReviewDialog';
-import { ReviewsList } from '@/components/ReviewsList';
 
 interface DatabaseListing {
   id: string;
@@ -42,7 +40,6 @@ const ProductPage = () => {
   const [sellerInfo, setSellerInfo] = useState<any>(null);
   const [similarListings, setSimilarListings] = useState<any[]>([]);
   const [hasMessagedSeller, setHasMessagedSeller] = useState(false);
-  const [reviewsRefresh, setReviewsRefresh] = useState(0);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -264,13 +261,6 @@ const ProductPage = () => {
                   >
                     Message Seller
                   </Button>
-                  {isAuthenticated && (
-                    <ReviewDialog 
-                      listingId={dbListing.id} 
-                      sellerId={dbListing.user_id}
-                      onReviewSubmitted={() => setReviewsRefresh(prev => prev + 1)}
-                    />
-                  )}
                   <Button variant="outline" size="lg" className="w-full">Report Listing</Button>
                 </>
               )}
@@ -299,13 +289,6 @@ const ProductPage = () => {
             </Card>
           </div>
         </div>
-
-        {dbListing && user?.id !== dbListing.user_id && (
-          <div className="mt-12">
-            <h2 className="text-2xl font-bold mb-6">Reviews</h2>
-            <ReviewsList sellerId={dbListing.user_id} refreshTrigger={reviewsRefresh} />
-          </div>
-        )}
 
         {similarListings.length > 0 && (
           <div className="mt-12">

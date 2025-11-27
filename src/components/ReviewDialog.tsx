@@ -13,7 +13,7 @@ interface ReviewDialogProps {
   onReviewSubmitted?: () => void;
 }
 
-export const ReviewDialog = ({ listingId, sellerId, onReviewSubmitted }: ReviewDialogProps) => {
+export const ReviewDialog = ({ listingId = '', sellerId, onReviewSubmitted }: ReviewDialogProps) => {
   const [open, setOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
@@ -39,7 +39,7 @@ export const ReviewDialog = ({ listingId, sellerId, onReviewSubmitted }: ReviewD
         .insert({
           reviewer_id: user.id,
           reviewed_user_id: sellerId,
-          listing_id: listingId,
+          listing_id: listingId || null,
           rating,
           comment: comment.trim() || null,
         });
