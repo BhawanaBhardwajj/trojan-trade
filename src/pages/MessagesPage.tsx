@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Check, Send, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
@@ -45,6 +45,7 @@ const MessagesPage = () => {
   const [sending, setSending] = useState(false);
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when messages change
@@ -53,11 +54,59 @@ const MessagesPage = () => {
   }, [selectedConvo?.messages]);
 
   useEffect(() => {
+    const createOrFindConversation = async (sellerId: string, listingId: string) => {
+      if (!user) return;
+
+      try {
+        // Check if conversation already exists
+        const { data: existing } = await supabase
+          .from('conversations')
+          .select('*')
+          .eq('buyer_id', user.id)
+          .eq('seller_id', sellerId)
+          .eq('listing_id', listingId)
+          .single();
+
+        if (existing) {
+          return existing.id;
+        }
+
+        // Create new conversation
+        const { data: newConvo, error } = await supabase
+          .from('conversations')
+          .insert({
+            buyer_id: user.id,
+            seller_id: sellerId,
+            listing_id: listingId
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        return newConvo.id;
+      } catch (error) {
+        console.error('Error creating conversation:', error);
+        toast.error('Failed to start conversation');
+        return null;
+      }
+    };
+
     const fetchConversations = async () => {
       if (!user) return;
 
       setLoading(true);
+      const locationState = location.state as { sellerId?: string; listingId?: string } | null;
+      
       try {
+        // Handle incoming message request from product page
+        if (locationState?.sellerId && locationState?.listingId) {
+          const convoId = await createOrFindConversation(locationState.sellerId, locationState.listingId);
+          if (convoId) {
+            // Clear location state
+            window.history.replaceState({}, document.title);
+          }
+        }
+
         // Fetch all conversations for the user
         const { data: convos, error } = await supabase
           .from('conversations')
@@ -113,7 +162,15 @@ const MessagesPage = () => {
         );
 
         setConversations(enrichedConvos);
-        if (enrichedConvos.length > 0) {
+        
+        // Select the most recent conversation or the one from location state
+        if (locationState?.sellerId && locationState?.listingId && enrichedConvos.length > 0) {
+          const targetConvo = enrichedConvos.find(c => 
+            c.listing_id === locationState.listingId && 
+            (c.seller_id === locationState.sellerId || c.buyer_id === locationState.sellerId)
+          );
+          setSelectedConvo(targetConvo || enrichedConvos[0]);
+        } else if (enrichedConvos.length > 0) {
           setSelectedConvo(enrichedConvos[0]);
         }
       } catch (error) {
@@ -127,7 +184,7 @@ const MessagesPage = () => {
     if (user) {
       fetchConversations();
     }
-  }, [user]);
+  }, [user, location.state]);
 
   useEffect(() => {
     if (!user || !selectedConvo) return;
