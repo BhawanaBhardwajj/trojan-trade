@@ -139,7 +139,7 @@ const SellerProfilePage = () => {
                 </p>
                 {seller.bio && <p className="text-foreground mb-4 whitespace-pre-wrap">{seller.bio}</p>}
                 <div className="flex gap-3">
-                  {user?.id !== sellerId && user && (
+                  {user?.id !== sellerId && (
                     <>
                       <MessageDialog
                         sellerId={sellerId || ''}
@@ -153,11 +153,17 @@ const SellerProfilePage = () => {
                           </Button>
                         }
                       />
-                      <ReviewDialog 
-                        listingId="" 
-                        sellerId={sellerId || ''} 
-                        onReviewSubmitted={() => setReviewsRefresh(prev => prev + 1)}
-                      />
+                      {user ? (
+                        <ReviewDialog 
+                          listingId="" 
+                          sellerId={sellerId || ''} 
+                          onReviewSubmitted={() => setReviewsRefresh(prev => prev + 1)}
+                        />
+                      ) : (
+                        <Button variant="outline" onClick={() => navigate('/login')}>
+                          Write a Review
+                        </Button>
+                      )}
                     </>
                   )}
                   {user?.id === sellerId && (
