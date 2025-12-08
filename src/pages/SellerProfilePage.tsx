@@ -16,6 +16,7 @@ import { ReviewsList } from '@/components/ReviewsList';
 import { ReviewsGivenList } from '@/components/ReviewsGivenList';
 import { Separator } from '@/components/ui/separator';
 import { MessageDialog } from '@/components/MessageDialog';
+import { USCVerificationBadge } from '@/components/USCVerificationBadge';
 
 interface SellerData {
   id: string;
@@ -134,11 +135,11 @@ const SellerProfilePage = () => {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <h1 className="text-3xl font-bold text-primary">{seller.full_name}</h1>
-                  {seller.usc_verified && <Badge>Verified</Badge>}
+                  <USCVerificationBadge verified={seller.usc_verified} size="md" />
                 </div>
-                <p className="text-muted-foreground mb-4">
-                  {seller.usc_verified ? 'Verified USC Student' : 'USC Community Member'}
-                </p>
+                {seller.usc_verified && (
+                  <p className="text-muted-foreground mb-4">Verified USC Student</p>
+                )}
                 {seller.bio && <p className="text-foreground mb-4 whitespace-pre-wrap">{seller.bio}</p>}
                 <div className="flex gap-3">
                   {user?.id !== sellerId && (
