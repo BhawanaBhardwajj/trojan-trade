@@ -12,6 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { ReviewsList } from '@/components/ReviewsList';
 import { ReviewsGivenList } from '@/components/ReviewsGivenList';
+import { USCVerificationBadge } from '@/components/USCVerificationBadge';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -128,6 +129,7 @@ const ProfilePage = () => {
                   <div>
                     <div className="flex items-center gap-3 mb-2 flex-wrap">
                       <h1 className="text-3xl font-bold">{profile?.full_name || 'Anonymous User'}</h1>
+                      <USCVerificationBadge verified={profile?.usc_verified} size="md" />
                       {!isProfileComplete && (
                         <Badge className="bg-gradient-to-r from-[hsl(var(--usc-cardinal))] to-red-700 text-white hover:from-[hsl(var(--usc-cardinal))]/90 hover:to-red-700/90">
                           Complete Profile
